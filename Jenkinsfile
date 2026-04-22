@@ -59,8 +59,10 @@ pipeline {
             rm -rf spring-app-manifests
             git clone https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git
           cd spring-app-manifests
-          sed -i "s|image: .*|image: omarchouchane/ultimate-cicd:${BUILD_NUMBER}|g" deployment.yaml
-          git add deployment.yaml
+          DEPLOY_FILE=$(find . -maxdepth 2 -type f \( -name 'deployment.yaml' -o -name 'deployment.yml' \) | head -n 1)
+          if [ -z "$DEPLOY_FILE" ]; then echo "Deployment file not found"; exit 1; fi
+          sed -i "s|image: .*|image: omarchouchane/ultimate-cicd:${BUILD_NUMBER}|g" "$DEPLOY_FILE"
+          git add "$DEPLOY_FILE"
                     git commit -m "Update deployment image to version ${BUILD_NUMBER}"
             git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
                 '''
