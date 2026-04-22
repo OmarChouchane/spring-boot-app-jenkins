@@ -17,11 +17,11 @@ pipeline {
     }
     stage('Static Code Analysis') {
       environment {
-        SONAR_URL = "http://localhost:9000"
+        SONAR_URL = "http://host.docker.internal:9000"
       }
       steps {
         withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-          sh 'docker run --rm -e SONAR_AUTH_TOKEN="$SONAR_AUTH_TOKEN" -e SONAR_URL="$SONAR_URL" -v "$PWD":/workspace -w /workspace maven:3.9.9-eclipse-temurin-17 mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=$SONAR_URL'
+          sh 'docker run --rm --add-host=host.docker.internal:host-gateway -e SONAR_AUTH_TOKEN="$SONAR_AUTH_TOKEN" -e SONAR_URL="$SONAR_URL" -v "$PWD":/workspace -w /workspace maven:3.9.9-eclipse-temurin-17 mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=$SONAR_URL'
         }
       }
     }
