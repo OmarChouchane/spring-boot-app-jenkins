@@ -5,9 +5,13 @@ pipeline {
       args '--user root -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker'
     }
   }
+  options {
+    skipDefaultCheckout(true)
+  }
   stages {
     stage('Checkout') {
       steps {
+        deleteDir()
         checkout scm
       }
     }
