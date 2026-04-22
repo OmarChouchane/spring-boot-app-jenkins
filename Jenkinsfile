@@ -6,13 +6,13 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        deleteDir()
+        sh 'docker run --rm -u root -v "$WORKSPACE":/workspace -v "$WORKSPACE@tmp":/workspace@tmp alpine sh -lc "rm -rf /workspace/* /workspace/.[!.]* /workspace/..?* /workspace/.??* /workspace@tmp/* 2>/dev/null || true"'
         checkout scm
       }
     }
     stage('Build and Test') {
       steps {
-        sh 'docker run --rm -v "$PWD":/workspace -w /workspace maven:3.9.9-eclipse-temurin-17 mvn clean package'
+        sh 'docker run --rm -u "$(id -u):$(id -g)" -v "$PWD":/workspace -w /workspace maven:3.9.9-eclipse-temurin-17 mvn clean package'
       }
     }
     stage('Static Code Analysis') {
@@ -21,7 +21,7 @@ pipeline {
       }
       steps {
         withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-          sh 'docker run --rm --add-host=host.docker.internal:host-gateway -e SONAR_AUTH_TOKEN="$SONAR_AUTH_TOKEN" -e SONAR_URL="$SONAR_URL" -v "$PWD":/workspace -w /workspace maven:3.9.9-eclipse-temurin-17 mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=$SONAR_URL'
+          sh 'docker run --rm -u "$(id -u):$(id -g)" --add-host=host.docker.internal:host-gateway -e SONAR_AUTH_TOKEN="$SONAR_AUTH_TOKEN" -e SONAR_URL="$SONAR_URL" -v "$PWD":/workspace -w /workspace maven:3.9.9-eclipse-temurin-17 mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=$SONAR_URL'
         }
       }
     }
