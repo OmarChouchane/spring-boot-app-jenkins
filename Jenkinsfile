@@ -2,12 +2,16 @@ pipeline {
   agent {
     docker {
       image 'maven:3.9.9-eclipse-temurin-17'
-      args '--user root -v /var/run/docker.sock:/var/run/docker.sock --add-host=host.docker.internal:host-gateway' // mount Docker socket to access the host's Docker daemon
+      args '--user root -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker --add-host=host.docker.internal:host-gateway' // mount Docker socket to access the host's Docker daemon
     }
+  }
+  options {
+    skipDefaultCheckout(true)
   }
   stages {
     stage('Checkout') {
       steps {
+        sh 'docker run --rm -u root -v "$WORKSPACE":/workspace alpine sh -lc "rm -rf /workspace/* /workspace/.[!.]* /workspace/..?* /workspace/.??* 2>/dev/null || true"'
         checkout scm
       }
     }
