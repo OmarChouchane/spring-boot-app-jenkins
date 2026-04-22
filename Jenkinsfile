@@ -58,8 +58,9 @@ pipeline {
                     BUILD_NUMBER=${BUILD_NUMBER}
             rm -rf spring-app-manifests
             git clone https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git
-            sed -i "s|image: .*|image: omarchouchane/ultimate-cicd:${BUILD_NUMBER}|g" spring-app-manifests/deployment.yaml
-            git add spring-app-manifests/deployment.yaml
+          cd spring-app-manifests
+          sed -i "s|image: .*|image: omarchouchane/ultimate-cicd:${BUILD_NUMBER}|g" deployment.yaml
+          git add deployment.yaml
                     git commit -m "Update deployment image to version ${BUILD_NUMBER}"
             git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
                 '''
