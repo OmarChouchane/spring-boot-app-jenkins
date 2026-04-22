@@ -6,7 +6,7 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        sh 'docker run --rm -u root -v "$WORKSPACE":/workspace -v "$WORKSPACE@tmp":/workspace@tmp alpine sh -lc "rm -rf /workspace/* /workspace/.[!.]* /workspace/..?* /workspace/.??* /workspace@tmp/* 2>/dev/null || true"'
+        sh 'chmod -R u+rwX "$WORKSPACE" "$WORKSPACE@tmp" || true; rm -rf "$WORKSPACE"/* "$WORKSPACE"/.[!.]* "$WORKSPACE"/..?* "$WORKSPACE"/.??* "$WORKSPACE@tmp"/* 2>/dev/null || true'
         checkout scm
       }
     }
