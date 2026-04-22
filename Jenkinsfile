@@ -1,10 +1,5 @@
 pipeline {
-  agent {
-    docker {
-      image 'maven:3.9.9-eclipse-temurin-17'
-      args '-v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker'
-    }
-  }
+  agent any
   options {
     skipDefaultCheckout(true)
   }
@@ -17,7 +12,7 @@ pipeline {
     }
     stage('Build and Test') {
       steps {
-        sh 'mvn clean package'
+        sh 'docker run --rm -v "$PWD":/workspace -w /workspace maven:3.9.9-eclipse-temurin-17 mvn clean package'
       }
     }
     stage('Static Code Analysis') {
@@ -26,7 +21,7 @@ pipeline {
       }
       steps {
         withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-          sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
+          sh 'docker run --rm -e SONAR_AUTH_TOKEN="$SONAR_AUTH_TOKEN" -e SONAR_URL="$SONAR_URL" -v "$PWD":/workspace -w /workspace maven:3.9.9-eclipse-temurin-17 mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=$SONAR_URL'
         }
       }
     }
