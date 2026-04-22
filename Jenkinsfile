@@ -53,8 +53,8 @@ pipeline {
         steps {
             withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                 sh '''
-            git config user.email "omar.ch52831@gmail.com"
-            git config user.name "Omar Chouchane"
+          git config --global user.email "omar.ch52831@gmail.com"
+          git config --global user.name "Omar Chouchane"
                     BUILD_NUMBER=${BUILD_NUMBER}
             rm -rf spring-app-manifests
             git clone https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git
