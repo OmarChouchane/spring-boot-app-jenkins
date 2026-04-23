@@ -26,44 +26,7 @@ pipeline {
       }
       steps {
         withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_TOKEN')]) {
-          sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar -Dsonar.token=$SONAR_TOKEN -Dsonar.host.url=${SONAR_URL}'
-        }
-      }
-    }
-    stage('Fail on Security Hotspots') {
-      environment {
-        SONAR_URL = "http://host.docker.internal:9000"
-      }
-      steps {
-        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_TOKEN')]) {
-          sh '''
-            REPORT_FILE=$(find . -maxdepth 4 -type f -name report-task.txt | head -n 1)
-            if [ -z "$REPORT_FILE" ]; then
-              echo "Could not locate Sonar report-task.txt"
-              exit 1
-            fi
-
-            PROJECT_KEY=$(grep '^projectKey=' "$REPORT_FILE" | cut -d= -f2)
-            if [ -z "$PROJECT_KEY" ]; then
-              echo "Could not resolve Sonar project key from $REPORT_FILE"
-              exit 1
-            fi
-
-            RESPONSE=$(curl -s -u "${SONAR_TOKEN}:" "${SONAR_URL}/api/hotspots/search?projectKey=${PROJECT_KEY}&status=TO_REVIEW&ps=1")
-            HOTSPOT_TOTAL=$(echo "$RESPONSE" | grep -o '"total":[0-9]*' | head -n 1 | cut -d: -f2)
-
-            if [ -z "$HOTSPOT_TOTAL" ]; then
-              echo "Could not parse Sonar hotspots response"
-              echo "$RESPONSE"
-              exit 1
-            fi
-
-            echo "Unreviewed security hotspots: $HOTSPOT_TOTAL"
-            if [ "$HOTSPOT_TOTAL" -gt 0 ]; then
-              echo "Failing build because security hotspots are present"
-              exit 1
-            fi
-          '''
+          sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar -Dsonar.token=$SONAR_TOKEN -Dsonar.host.url=${SONAR_URL} -Dsonar.qualitygate.wait=true -Dsonar.qualitygate.timeout=300'
         }
       }
     }
