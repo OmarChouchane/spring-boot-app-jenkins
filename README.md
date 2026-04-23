@@ -18,9 +18,7 @@ The deployment manifests are managed in a separate repository:
 
 ## Architecture
 
-Add your architecture diagram image to this repository (example path shown below), then it will render automatically.
-
-![CI/CD Architecture](docs/pipeline-architecture.png)
+<img width="4803" height="1612" alt="diagram-export-4-23-2026-10_51_19-AM" src="https://github.com/user-attachments/assets/07931eac-63cd-475c-8018-62fab68067f9" />
 
 ## Pipeline Flow
 
